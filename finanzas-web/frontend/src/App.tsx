@@ -5,6 +5,7 @@ import CatEgresosList from './components/CatEgresosList';
 import EgresosList from './components/EgresosList';
 import CatIngresosList from './components/CatIngresosList';
 import IngresosList from './components/IngresosList';
+import LimitesList from './components/LimitesList';
 import { getIngresosSummary } from './api/ingresos.api';
 import { getEgresosSummary } from './api/egresos.api';
 
@@ -155,7 +156,7 @@ export default function App() {
       case 'ingresos':
         return <IngresosList />;
       case 'limites':
-        return <PlaceholderPage title="Límites / Presupuestos" subtitle="Controla tus límites de gasto" icon="💳" />;
+        return <LimitesList />;
       case 'metas':
         return <PlaceholderPage title="Metas de ahorro" subtitle="Alcanza tus objetivos financieros" icon="🎯" />;
       case 'movimientos-ahorro':

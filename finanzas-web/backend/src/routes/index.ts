@@ -5,6 +5,7 @@ import catEgresosRoutes from './catEgresos.routes';
 import egresosRoutes from './egresos.routes';
 import catIngresosRoutes from './catIngresos.routes';
 import ingresosRoutes from './ingresos.routes';
+import limitesRoutes from './limites.routes';
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.use('/cat-egresos', catEgresosRoutes);
 router.use('/egresos', egresosRoutes);
 router.use('/cat-ingresos', catIngresosRoutes);
 router.use('/ingresos', ingresosRoutes);
+router.use('/limites', limitesRoutes);
 
 export default router;
