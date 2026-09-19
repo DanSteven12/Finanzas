@@ -1,0 +1,167 @@
+/* frontend/src/components/CatEgresosList.css */
+
+.cat-egresos {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Formulario de nueva categoría ── */
+.cat-egresos__form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.cat-egresos__input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--color-text-dark);
+  background: var(--color-white);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cat-egresos__input:focus {
+  border-color: var(--color-accent-mint);
+  box-shadow: 0 0 0 3px rgba(89, 217, 181, 0.2);
+}
+
+.cat-egresos__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* ── Lista ── */
+.cat-egresos__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cat-egresos__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-base);
+  border: 1.5px solid var(--color-border);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  gap: 12px;
+}
+
+.cat-egresos__item:hover {
+  border-color: var(--color-aqua-bright);
+  box-shadow: var(--shadow-sm);
+}
+
+.cat-egresos__item--editing {
+  border-color: var(--color-accent-mint);
+  background: #f0fdf9;
+}
+
+.cat-egresos__item-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text-dark);
+  flex: 1;
+}
+
+.cat-egresos__item-edit-input {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1.5px solid var(--color-accent-mint);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  background: var(--color-white);
+}
+
+.cat-egresos__item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Botones de acción en items ── */
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-icon:hover {
+  transform: scale(1.1);
+  opacity: 0.85;
+}
+
+.btn-edit {
+  background: var(--color-aqua-soft);
+  color: var(--color-primary-dark);
+}
+
+.btn-save {
+  background: var(--color-accent-mint);
+  color: var(--color-primary-dark);
+}
+
+.btn-cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* ── Estado vacío ── */
+.cat-egresos__empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+/* ── Mensaje de error ── */
+.cat-egresos__error {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  border-left: 4px solid #dc2626;
+}
+
+/* ── Skeleton loader ── */
+.cat-egresos__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-item {
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

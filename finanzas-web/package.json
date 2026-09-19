@@ -1,0 +1,18 @@
+{
+  "name": "finanzas-monorepo",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail false --names \"frontend,backend\" --prefix-colors \"cyan,magenta\" \"yarn workspace finanzas-frontend run dev\" \"yarn workspace finanzas-backend run dev\"",
+    "dev:frontend": "yarn workspace finanzas-frontend run dev",
+    "dev:backend": "yarn workspace finanzas-backend run dev",
+    "build": "yarn workspace finanzas-frontend run build",
+    "build:backend": "yarn workspace finanzas-backend run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
