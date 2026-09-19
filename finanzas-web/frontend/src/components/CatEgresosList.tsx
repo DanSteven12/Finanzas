@@ -10,20 +10,11 @@ import {
 
 const PAGE_SIZE = 4;
 
-// Datos simulados hasta que el backend los devuelva
-function fakeMeta(id: number) {
-  const seed = id * 7;
-  return {
-    cantidad_gastos: (seed % 40) + 1,
-    total_gastado:   ((seed * 1234) % 60000) + 1000,
-    fecha_creacion:  '14 ene 2026',
-  };
-}
-
 export default function CatEgresosList() {
   const [categorias, setCategorias] = useState<CatEgreso[]>([]);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState<string | null>(null);
+  const [success, setSuccess]       = useState<string | null>(null);
 
   // Búsqueda
   const [search, setSearch] = useState('');
@@ -35,6 +26,7 @@ export default function CatEgresosList() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [nuevaNombre, setNuevaNombre]         = useState('');
   const [creando, setCreando]                 = useState(false);
+  const [createError, setCreateError]         = useState<string | null>(null);
   const createInputRef = useRef<HTMLInputElement>(null);
 
   // Modal editar
@@ -42,19 +34,29 @@ export default function CatEgresosList() {
   const [editingCat, setEditingCat]           = useState<CatEgreso | null>(null);
   const [editNombre, setEditNombre]           = useState('');
   const [guardando, setGuardando]             = useState(false);
+  const [editError, setEditError]             = useState<string | null>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
+
+  // Modal advertencia de restricción relacional
+  const [blockedDeleteMsg, setBlockedDeleteMsg] = useState<string | null>(null);
 
   /* ── Carga inicial ───────────────────────────── */
   useEffect(() => { cargarCategorias(); }, []);
 
   // Enfocar input cuando se abre modal de crear
   useEffect(() => {
-    if (showCreateModal) setTimeout(() => createInputRef.current?.focus(), 50);
+    if (showCreateModal) {
+      setCreateError(null);
+      setTimeout(() => createInputRef.current?.focus(), 50);
+    }
   }, [showCreateModal]);
 
   // Enfocar input cuando se abre modal de editar
   useEffect(() => {
-    if (showEditModal) setTimeout(() => editInputRef.current?.focus(), 50);
+    if (showEditModal) {
+      setEditError(null);
+      setTimeout(() => editInputRef.current?.focus(), 50);
+    }
   }, [showEditModal]);
 
   async function cargarCategorias() {
@@ -63,8 +65,8 @@ export default function CatEgresosList() {
       setError(null);
       const data = await getCategorias();
       setCategorias(data);
-    } catch {
-      setError('No se pudieron cargar las categorías. ¿Está el backend activo?');
+    } catch (err: any) {
+      setError(err.message || 'No se pudieron cargar las categorías. ¿Está el backend activo?');
     } finally {
       setLoading(false);
     }
@@ -73,15 +75,21 @@ export default function CatEgresosList() {
   /* ── Crear ───────────────────────────────────── */
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    if (!nuevaNombre.trim()) return;
+    if (!nuevaNombre.trim()) {
+      setCreateError('El nombre no puede estar vacío.');
+      return;
+    }
     try {
       setCreando(true);
+      setCreateError(null);
       const nueva = await createCategoria({ nombre: nuevaNombre.trim() });
       setCategorias((prev) => [...prev, nueva]);
       setNuevaNombre('');
       setShowCreateModal(false);
-    } catch {
-      setError('Error al crear la categoría.');
+      setSuccess('Categoría creada exitosamente');
+      setTimeout(() => setSuccess(null), 3500);
+    } catch (err: any) {
+      setCreateError(err.message || 'Error al crear la categoría.');
     } finally {
       setCreando(false);
     }
@@ -91,6 +99,7 @@ export default function CatEgresosList() {
   function startEdit(cat: CatEgreso) {
     setEditingCat(cat);
     setEditNombre(cat.nombre);
+    setEditError(null);
     setShowEditModal(true);
   }
 
@@ -99,33 +108,42 @@ export default function CatEgresosList() {
     setShowEditModal(false);
     setEditingCat(null);
     setEditNombre('');
+    setEditError(null);
   }
 
   async function handleEditSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!editNombre.trim() || !editingCat) return;
+    if (!editNombre.trim() || !editingCat) {
+      setEditError('El nombre no puede estar vacío.');
+      return;
+    }
     try {
       setGuardando(true);
+      setEditError(null);
       await updateCategoria(editingCat.id, { nombre: editNombre.trim() });
       setCategorias((prev) =>
         prev.map((c) => (c.id === editingCat.id ? { ...c, nombre: editNombre.trim() } : c))
       );
       closeEditModal();
-    } catch {
-      setError('Error al actualizar la categoría.');
+      setSuccess('Categoría actualizada exitosamente');
+      setTimeout(() => setSuccess(null), 3500);
+    } catch (err: any) {
+      setEditError(err.message || 'Error al actualizar la categoría.');
     } finally {
       setGuardando(false);
     }
   }
 
-  /* ── Eliminar ────────────────────────────────── */
-  async function handleDelete(id: number) {
-    if (!confirm('¿Eliminar esta categoría?')) return;
+  /* ── Eliminar con protección relacional ──────── */
+  async function handleDelete(cat: CatEgreso) {
+    if (!confirm(`¿Estás seguro de eliminar la categoría "${cat.nombre}"?`)) return;
     try {
-      await deleteCategoria(id);
-      setCategorias((prev) => prev.filter((c) => c.id !== id));
-    } catch {
-      setError('Error al eliminar la categoría.');
+      await deleteCategoria(cat.id);
+      setCategorias((prev) => prev.filter((c) => c.id !== cat.id));
+      setSuccess(`Categoría "${cat.nombre}" eliminada correctamente.`);
+      setTimeout(() => setSuccess(null), 3500);
+    } catch (err: any) {
+      setBlockedDeleteMsg(err.message || 'No se puede eliminar la categoría porque tiene gastos asociados.');
     }
   }
 
@@ -163,6 +181,15 @@ export default function CatEgresosList() {
           Nueva categoría
         </button>
       </div>
+
+      {/* Alerta de éxito */}
+      {success && (
+        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-success-soft text-income text-sm border border-income/20 animate-in fade-in duration-200">
+          <span>✓</span>
+          <span>{success}</span>
+          <button onClick={() => setSuccess(null)} className="ml-auto text-income/60 hover:text-income">✕</button>
+        </div>
+      )}
 
       {/* Error */}
       {error && (
@@ -210,8 +237,8 @@ export default function CatEgresosList() {
         {loading ? (
           <div className="flex flex-col gap-0">
             {/* Header skeleton */}
-            <div className="grid grid-cols-[2fr_1.2fr_1.2fr_1.4fr_1fr] px-5 py-3 border-b border-border">
-              {['NOMBRE','CANTIDAD DE GASTOS','TOTAL GASTADO','FECHA DE CREACIÓN','ACCIONES'].map((h) => (
+            <div className="grid grid-cols-[2fr_1.2fr_1.2fr_1fr] px-5 py-3 border-b border-border">
+              {['NOMBRE','CANTIDAD DE GASTOS','TOTAL GASTADO','ACCIONES'].map((h) => (
                 <span key={h} className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{h}</span>
               ))}
             </div>
@@ -242,68 +269,62 @@ export default function CatEgresosList() {
                 <th className="text-left px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-widest">Nombre</th>
                 <th className="text-left px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-widest">Cantidad de gastos</th>
                 <th className="text-left px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-widest">Total gastado</th>
-                <th className="text-left px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-widest">Fecha de creación</th>
                 <th className="text-left px-5 py-3 text-xs font-bold text-muted-foreground uppercase tracking-widest">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {paginated.map((cat) => {
-                const meta = fakeMeta(cat.id);
-                return (
-                  <tr
-                    key={cat.id}
-                    className="border-b border-border last:border-0 transition-colors hover:bg-muted/30"
-                  >
-                    {/* Nombre */}
-                    <td className="px-5 py-3.5">
-                      <span className="inline-flex items-center gap-2.5 font-semibold text-foreground">
-                        <span className="size-7 rounded-full bg-red-50 dark:bg-muted flex items-center justify-center shrink-0">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-                            <line x1="7" y1="7" x2="7.01" y2="7"/>
-                          </svg>
-                        </span>
-                        {cat.nombre}
+              {paginated.map((cat) => (
+                <tr
+                  key={cat.id}
+                  className="border-b border-border last:border-0 transition-colors hover:bg-muted/30"
+                >
+                  {/* Nombre */}
+                  <td className="px-5 py-3.5">
+                    <span className="inline-flex items-center gap-2.5 font-semibold text-foreground">
+                      <span className="size-7 rounded-full bg-red-50 dark:bg-muted flex items-center justify-center shrink-0">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                          <line x1="7" y1="7" x2="7.01" y2="7"/>
+                        </svg>
                       </span>
-                    </td>
-                    {/* Cantidad */}
-                    <td className="px-5 py-3.5 text-foreground">{meta.cantidad_gastos}</td>
-                    {/* Total */}
-                    <td className="px-5 py-3.5 text-foreground font-medium">
-                      ${meta.total_gastado.toLocaleString('es-MX')}
-                    </td>
-                    {/* Fecha */}
-                    <td className="px-5 py-3.5 text-foreground">{meta.fecha_creacion}</td>
-                    {/* Acciones */}
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          id={`btn-editar-${cat.id}`}
-                          title="Editar"
-                          onClick={() => startEdit(cat)}
-                          className="size-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                        >
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                          </svg>
-                        </button>
-                        <button
-                          id={`btn-eliminar-${cat.id}`}
-                          title="Eliminar"
-                          onClick={() => handleDelete(cat.id)}
-                          className="size-8 flex items-center justify-center rounded-lg text-destructive/70 hover:text-destructive hover:bg-danger-soft transition-colors"
-                        >
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3 6 5 6 21 6" />
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      {cat.nombre}
+                    </span>
+                  </td>
+                  {/* Cantidad */}
+                  <td className="px-5 py-3.5 text-foreground">{cat.cantidad_gastos ?? 0}</td>
+                  {/* Total */}
+                  <td className="px-5 py-3.5 text-expense font-semibold">
+                    ${(cat.total_gastado ?? 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </td>
+                  {/* Acciones */}
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        id={`btn-editar-${cat.id}`}
+                        title="Editar"
+                        onClick={() => startEdit(cat)}
+                        className="size-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                      </button>
+                      <button
+                        id={`btn-eliminar-${cat.id}`}
+                        title="Eliminar"
+                        onClick={() => handleDelete(cat)}
+                        className="size-8 flex items-center justify-center rounded-lg text-destructive/70 hover:text-destructive hover:bg-danger-soft transition-colors"
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
@@ -363,6 +384,12 @@ export default function CatEgresosList() {
                 </svg>
               </button>
             </div>
+
+            {createError && (
+              <div className="px-4 py-2.5 rounded-xl bg-danger-soft text-destructive text-sm border border-destructive/20">
+                {createError}
+              </div>
+            )}
 
             {/* Formulario */}
             <form onSubmit={handleCreate} className="flex flex-col gap-6">
@@ -442,6 +469,12 @@ export default function CatEgresosList() {
               </button>
             </div>
 
+            {editError && (
+              <div className="px-4 py-2.5 rounded-xl bg-danger-soft text-destructive text-sm border border-destructive/20">
+                {editError}
+              </div>
+            )}
+
             {/* Formulario */}
             <form onSubmit={handleEditSubmit} className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
@@ -488,7 +521,35 @@ export default function CatEgresosList() {
         </div>
       )}
 
+      {/* ── Modal: Advertencia de restricción de eliminación ──────── */}
+      {blockedDeleteMsg && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setBlockedDeleteMsg(null); }}
+        >
+          <div className="w-full max-w-md bg-card rounded-3xl shadow-2xl p-7 flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200 border border-destructive/20">
+            <div className="size-12 rounded-2xl bg-danger-soft flex items-center justify-center text-destructive text-2xl mx-auto">
+              ⚠️
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-bold font-display text-foreground">
+                No se puede eliminar la categoría
+              </h3>
+              <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                {blockedDeleteMsg}
+              </p>
+            </div>
+            <button
+              onClick={() => setBlockedDeleteMsg(null)}
+              className="w-full py-2.5 rounded-full text-sm font-bold bg-primary text-primary-foreground hover:opacity-90 active:scale-95 transition-all shadow-sm"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
-

@@ -2,9 +2,11 @@
 import { useEffect, useState } from 'react';
 import Sidebar, { type PageId } from './components/Sidebar';
 import CatEgresosList from './components/CatEgresosList';
+import EgresosList from './components/EgresosList';
 import CatIngresosList from './components/CatIngresosList';
 import IngresosList from './components/IngresosList';
 import { getIngresosSummary } from './api/ingresos.api';
+import { getEgresosSummary } from './api/egresos.api';
 
 /* ── Dashboard ──────────────────────────────────── */
 function Dashboard({
@@ -17,14 +19,21 @@ function Dashboard({
   onNavigate: (page: PageId) => void;
 }) {
   const [totalIngresos, setTotalIngresos] = useState<number>(0);
+  const [totalEgresos, setTotalEgresos]   = useState<number>(0);
 
   useEffect(() => {
     if (apiOk) {
-      getIngresosSummary()
-        .then((res) => setTotalIngresos(res.total_monto || 0))
-        .catch(() => {});
+      Promise.all([
+        getIngresosSummary().catch(() => ({ total_monto: 0, total_registros: 0 })),
+        getEgresosSummary().catch(() => ({ total_monto: 0, total_registros: 0 })),
+      ]).then(([ingRes, egRes]) => {
+        setTotalIngresos(ingRes.total_monto || 0);
+        setTotalEgresos(egRes.total_monto || 0);
+      });
     }
   }, [apiOk]);
+
+  const balance = totalIngresos - totalEgresos;
 
   return (
     <div className="flex flex-col gap-6">
@@ -56,8 +65,8 @@ function Dashboard({
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
               Balance General
             </p>
-            <p className="text-4xl font-bold font-display text-foreground mt-2">
-              ${totalIngresos.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <p className={`text-4xl font-bold font-display mt-2 ${balance >= 0 ? 'text-foreground' : 'text-expense'}`}>
+              ${balance.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               <span className="text-base font-semibold text-muted-foreground ml-2">MXN</span>
             </p>
           </div>
@@ -76,7 +85,9 @@ function Dashboard({
           </div>
           <div className="rounded-xl bg-danger-soft px-4 py-3">
             <p className="text-xs text-muted-foreground mb-0.5">Egresos</p>
-            <p className="text-lg font-bold text-expense">$0.00</p>
+            <p className="text-lg font-bold text-expense">
+              ${totalEgresos.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
           </div>
         </div>
 
@@ -93,7 +104,7 @@ function Dashboard({
             onClick={() => onNavigate('egresos')}
             className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-primary text-primary-foreground hover:opacity-90 active:scale-95 transition-all clay-sm"
           >
-            − Registrar Gasto
+            − Ir a Egresos
           </button>
         </div>
       </section>
@@ -119,7 +130,7 @@ function PlaceholderPage({ title, subtitle, icon }: { title: string; subtitle: s
 
 /* ── App ────────────────────────────────────────── */
 export default function App() {
-  const [activePage, setActivePage] = useState<PageId>('ingresos');
+  const [activePage, setActivePage] = useState<PageId>('egresos');
   const [apiStatus, setApiStatus]   = useState<string>('Verificando...');
   const [apiOk, setApiOk]           = useState<boolean | null>(null);
 
@@ -138,7 +149,7 @@ export default function App() {
       case 'cat-egresos':
         return <CatEgresosList />;
       case 'egresos':
-        return <PlaceholderPage title="Egresos" subtitle="Registro de tus gastos" icon="↙️" />;
+        return <EgresosList />;
       case 'cat-ingresos':
         return <CatIngresosList />;
       case 'ingresos':
