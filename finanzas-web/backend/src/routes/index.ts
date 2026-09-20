@@ -7,6 +7,8 @@ import catIngresosRoutes from './catIngresos.routes';
 import ingresosRoutes from './ingresos.routes';
 import limitesRoutes from './limites.routes';
 import metasRoutes from './metas.routes';
+import movimientosRoutes from './movimientos.routes';
+import dashboardRoutes from './dashboard.routes';
 
 const router = Router();
 
@@ -16,5 +18,7 @@ router.use('/cat-ingresos', catIngresosRoutes);
 router.use('/ingresos', ingresosRoutes);
 router.use('/limites', limitesRoutes);
 router.use('/metas', metasRoutes);
+router.use('/movimientos', movimientosRoutes);
+router.use('/dashboard', dashboardRoutes);
 
 export default router;

@@ -1,5 +1,5 @@
 // frontend/src/App.tsx
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Sidebar, { type PageId } from './components/Sidebar';
 import CatEgresosList from './components/CatEgresosList';
 import EgresosList from './components/EgresosList';
@@ -7,147 +7,53 @@ import CatIngresosList from './components/CatIngresosList';
 import IngresosList from './components/IngresosList';
 import LimitesList from './components/LimitesList';
 import MetasList from './components/MetasList';
-import { getIngresosSummary } from './api/ingresos.api';
-import { getEgresosSummary } from './api/egresos.api';
+import MovimientosList from './components/MovimientosList';
+import DashboardView from './components/DashboardView';
 
-/* ── Dashboard ──────────────────────────────────── */
-function Dashboard({
-  apiOk,
-  apiStatus,
-  onNavigate,
-}: {
-  apiOk: boolean | null;
-  apiStatus: string;
-  onNavigate: (page: PageId) => void;
-}) {
-  const [totalIngresos, setTotalIngresos] = useState<number>(0);
-  const [totalEgresos, setTotalEgresos]   = useState<number>(0);
+const PAGE_TITLES: Record<PageId, string> = {
+  'dashboard': 'Dashboard',
+  'cat-egresos': 'Categorías de egresos',
+  'egresos': 'Egresos',
+  'cat-ingresos': 'Categorías de ingresos',
+  'ingresos': 'Ingresos',
+  'limites': 'Límites / Presupuestos',
+  'metas': 'Metas de ahorro',
+  'movimientos-ahorro': 'Movimientos de ahorro',
+};
 
-  useEffect(() => {
-    if (apiOk) {
-      Promise.all([
-        getIngresosSummary().catch(() => ({ total_monto: 0, total_registros: 0 })),
-        getEgresosSummary().catch(() => ({ total_monto: 0, total_registros: 0 })),
-      ]).then(([ingRes, egRes]) => {
-        setTotalIngresos(ingRes.total_monto || 0);
-        setTotalEgresos(egRes.total_monto || 0);
-      });
-    }
-  }, [apiOk]);
-
-  const balance = totalIngresos - totalEgresos;
-
-  return (
-    <div className="flex flex-col gap-6">
-      {/* Page header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold font-display text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Resumen financiero · Septiembre 2026</p>
-        </div>
-        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-          apiOk === null
-            ? 'bg-muted text-muted-foreground'
-            : apiOk
-              ? 'bg-success-soft text-income'
-              : 'bg-danger-soft text-destructive'
-        }`}>
-          <span className={`size-1.5 rounded-full inline-block ${
-            apiOk === null ? 'bg-muted-foreground animate-pulse'
-            : apiOk ? 'bg-income' : 'bg-destructive'
-          }`} />
-          {apiStatus}
-        </span>
-      </div>
-
-      {/* Balance General */}
-      <section className="finance-card p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
-              Balance General
-            </p>
-            <p className={`text-4xl font-bold font-display mt-2 ${balance >= 0 ? 'text-foreground' : 'text-expense'}`}>
-              ${balance.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              <span className="text-base font-semibold text-muted-foreground ml-2">MXN</span>
-            </p>
-          </div>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-success-soft text-income border border-income/20">
-            <span className="size-1.5 rounded-full bg-income inline-block animate-pulse" />
-            Activo
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 mt-5">
-          <div className="rounded-xl bg-success-soft px-4 py-3">
-            <p className="text-xs text-muted-foreground mb-0.5">Ingresos</p>
-            <p className="text-lg font-bold text-income">
-              ${totalIngresos.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
-          </div>
-          <div className="rounded-xl bg-danger-soft px-4 py-3">
-            <p className="text-xs text-muted-foreground mb-0.5">Egresos</p>
-            <p className="text-lg font-bold text-expense">
-              ${totalEgresos.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex gap-3 mt-5">
-          <button
-            id="btn-agregar-ingreso"
-            onClick={() => onNavigate('ingresos')}
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-accent-mint text-primary hover:brightness-105 active:scale-95 transition-all clay-sm"
-          >
-            + Ir a Ingresos
-          </button>
-          <button
-            id="btn-registrar-gasto"
-            onClick={() => onNavigate('egresos')}
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-primary text-primary-foreground hover:opacity-90 active:scale-95 transition-all clay-sm"
-          >
-            − Ir a Egresos
-          </button>
-        </div>
-      </section>
-    </div>
-  );
+function getHeaderSubtitle(): string {
+  const now = new Date();
+  const monthName = now.toLocaleDateString('es-MX', { month: 'long' });
+  const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+  return `Resumen financiero · ${capitalizedMonth} ${now.getFullYear()}`;
 }
 
-function PlaceholderPage({ title, subtitle, icon }: { title: string; subtitle: string; icon: string }) {
-  return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold font-display text-foreground">{title}</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
-      </div>
-      <div className="finance-card flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
-        <span className="text-5xl">{icon}</span>
-        <p className="text-sm font-medium">Próximamente</p>
-        <p className="text-xs text-muted-foreground/70">Esta sección está en desarrollo.</p>
-      </div>
-    </div>
-  );
-}
-
-/* ── App ────────────────────────────────────────── */
 export default function App() {
-  const [activePage, setActivePage] = useState<PageId>('egresos');
-  const [apiStatus, setApiStatus]   = useState<string>('Verificando...');
-  const [apiOk, setApiOk]           = useState<boolean | null>(null);
+  const [activePage, setActivePage] = useState<PageId>('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('finanzas_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
-  useEffect(() => {
-    fetch('http://localhost:4000/api/health')
-      .then((res) => res.json())
-      .then((data) => { setApiStatus(data.message); setApiOk(true); })
-      .catch(() => { setApiStatus('Backend no disponible'); setApiOk(false); });
-  }, []);
+  function toggleSidebar() {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('finanzas_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  }
 
   /* ── Renderiza la página activa ──────────────── */
   function renderPage() {
     switch (activePage) {
       case 'dashboard':
-        return <Dashboard apiOk={apiOk} apiStatus={apiStatus} onNavigate={setActivePage} />;
+        return <DashboardView onNavigate={setActivePage} />;
       case 'cat-egresos':
         return <CatEgresosList />;
       case 'egresos':
@@ -161,7 +67,7 @@ export default function App() {
       case 'metas':
         return <MetasList />;
       case 'movimientos-ahorro':
-        return <PlaceholderPage title="Movimientos de ahorro" subtitle="Historial de tus ahorros" icon="📥" />;
+        return <MovimientosList />;
       default:
         return null;
     }
@@ -169,12 +75,42 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar */}
-      <Sidebar activePage={activePage} onNavigate={setActivePage} />
+      {/* Mobile Drawer Backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 md:hidden animate-in fade-in duration-200"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-8 py-8">
+      {/* Sidebar (Responsive & Colapsable) */}
+      <Sidebar
+        activePage={activePage}
+        onNavigate={setActivePage}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={toggleSidebar}
+        mobileOpen={mobileSidebarOpen}
+        onCloseMobile={() => setMobileSidebarOpen(false)}
+      />
+
+      {/* Main container */}
+      <main className="flex-1 overflow-y-auto flex flex-col min-w-0">
+        {/* ── Encabezado Superior Global ── */}
+        <header className="px-4 sm:px-8 pt-5 pb-4 border-b border-border/50 bg-background/95 backdrop-blur-xs sticky top-0 z-20 shrink-0">
+          <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h2 className="text-xl sm:text-2xl font-bold font-display text-foreground leading-tight truncate">
+                {PAGE_TITLES[activePage]}
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-0.5 truncate">
+                {getHeaderSubtitle()}
+              </p>
+            </div>
+          </div>
+        </header>
+
+        {/* ── Área de contenido del módulo activo ── */}
+        <div className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-8 py-6 sm:py-8">
           {renderPage()}
         </div>
       </main>

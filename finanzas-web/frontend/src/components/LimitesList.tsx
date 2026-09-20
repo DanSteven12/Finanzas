@@ -344,30 +344,30 @@ export default function LimitesList() {
       {/* ── Sección Principal: Título y Botón Crear ──── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold font-display text-foreground tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-extrabold font-display text-foreground tracking-tight">
             Límites / Presupuestos
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1.5 font-medium">
             Controla cuánto puedes gastar cada mes por categoría.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           {/* Selector de Mes */}
-          <div className="flex items-center gap-1.5 bg-card border border-border/70 rounded-xl px-3 py-1.5 shadow-xs">
-            <span className="text-xs text-muted-foreground font-medium">📅</span>
+          <div className="flex items-center gap-2 bg-card border border-border/80 rounded-2xl px-3.5 py-2 shadow-xs">
+            <span className="text-sm text-muted-foreground font-medium">📅</span>
             <input
               id="input-filtro-limites-mes"
               type="month"
               value={filters.mes || ''}
               onChange={(e) => handleFilterChange('mes', e.target.value)}
-              className="text-xs font-semibold bg-transparent text-foreground outline-none cursor-pointer"
+              className="text-xs sm:text-sm font-bold bg-transparent text-foreground outline-none cursor-pointer"
             />
             {filters.mes && (
               <button
                 onClick={handleClearFilters}
                 title="Restablecer mes actual"
-                className="text-[10px] text-muted-foreground hover:text-foreground ml-1"
+                className="text-xs text-muted-foreground hover:text-foreground ml-1 cursor-pointer"
               >
                 ✕
               </button>
@@ -378,9 +378,9 @@ export default function LimitesList() {
           <button
             id="btn-nuevo-limite"
             onClick={openCreateModal}
-            className="px-5 py-2.5 rounded-xl text-sm font-bold bg-[#093539] text-white hover:bg-[#07272a] active:scale-95 transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer"
+            className="px-6 py-3 rounded-2xl text-sm font-bold bg-[#093539] text-white hover:bg-[#07272a] active:scale-95 transition-all shadow-sm flex items-center gap-2 shrink-0 cursor-pointer w-fit"
           >
-            <span className="text-base leading-none font-normal">+</span>
+            <span className="text-lg leading-none font-normal">+</span>
             <span>Crear límite</span>
           </button>
         </div>
@@ -388,83 +388,83 @@ export default function LimitesList() {
 
       {/* Alertas */}
       {success && (
-        <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-success-soft text-income text-sm border border-income/20 animate-in fade-in duration-200">
+        <div className="flex items-center gap-2 px-4 py-3.5 rounded-2xl bg-success-soft text-income text-sm border border-income/20 animate-in fade-in duration-200">
           <span>✓</span>
-          <span>{success}</span>
-          <button onClick={() => setSuccess(null)} className="ml-auto text-income/60 hover:text-income">✕</button>
+          <span className="font-medium">{success}</span>
+          <button onClick={() => setSuccess(null)} className="ml-auto text-income/60 hover:text-income cursor-pointer">✕</button>
         </div>
       )}
 
       {error && (
-        <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-danger-soft text-destructive text-sm border border-destructive/20">
+        <div className="flex items-center gap-2 px-4 py-3.5 rounded-2xl bg-danger-soft text-destructive text-sm border border-destructive/20">
           <span>⚠️</span>
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="ml-auto text-destructive/60 hover:text-destructive">✕</button>
+          <span className="font-medium">{error}</span>
+          <button onClick={() => setError(null)} className="ml-auto text-destructive/60 hover:text-destructive cursor-pointer">✕</button>
         </div>
       )}
 
       {/* ── 4 Tarjetas Superiores de Resumen ─────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 
         {/* 1. Presupuesto Total */}
-        <div className="bg-card rounded-3xl p-5 border border-border/70 shadow-xs flex flex-col justify-between">
-          <div className="size-10 rounded-xl bg-[#e6f7f5] text-[#0d9488] flex items-center justify-center mb-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="bg-card rounded-3xl p-6 border border-border/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="size-11 rounded-full bg-[#d1fae5] text-[#065f46] flex items-center justify-center mb-3">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="5" width="20" height="14" rx="2" />
               <line x1="2" y1="10" x2="22" y2="10" />
             </svg>
           </div>
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-0.5">Presupuesto total</p>
-            <p className="text-2xl sm:text-[26px] font-bold font-display text-foreground tracking-tight">
+            <p className="text-xs sm:text-sm font-semibold text-muted-foreground mb-1">Presupuesto total</p>
+            <p className="text-2xl sm:text-[28px] font-extrabold font-display text-foreground tracking-tight">
               {formatCurrency(totalPresupuestado)}
             </p>
           </div>
         </div>
 
         {/* 2. Total Gastado */}
-        <div className="bg-card rounded-3xl p-5 border border-border/70 shadow-xs flex flex-col justify-between">
-          <div className="size-10 rounded-xl bg-[#e6f7f5] text-[#0d9488] flex items-center justify-center mb-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <div className="bg-card rounded-3xl p-6 border border-border/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="size-11 rounded-full bg-[#fee2e2] text-[#b91c1c] flex items-center justify-center mb-3">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="17" y1="7" x2="7" y2="17" />
               <polyline points="17 17 7 17 7 7" />
             </svg>
           </div>
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-0.5">Total gastado</p>
-            <p className="text-2xl sm:text-[26px] font-bold font-display text-foreground tracking-tight">
+            <p className="text-xs sm:text-sm font-semibold text-muted-foreground mb-1">Total gastado</p>
+            <p className="text-2xl sm:text-[28px] font-extrabold font-display text-foreground tracking-tight">
               {formatCurrency(totalGastado)}
             </p>
           </div>
         </div>
 
         {/* 3. Disponible */}
-        <div className="bg-card rounded-3xl p-5 border border-border/70 shadow-xs flex flex-col justify-between">
-          <div className="size-10 rounded-xl bg-[#e6f7f5] text-[#0d9488] flex items-center justify-center mb-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="bg-card rounded-3xl p-6 border border-border/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="size-11 rounded-full bg-[#d1fae5] text-[#065f46] flex items-center justify-center mb-3">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
               <path d="M12 6v12M15 9.5a2.5 2.5 0 0 0-5 0c0 3 5 2 5 5a2.5 2.5 0 0 1-5 0" />
             </svg>
           </div>
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-0.5">Disponible</p>
-            <p className="text-2xl sm:text-[26px] font-bold font-display text-foreground tracking-tight">
+            <p className="text-xs sm:text-sm font-semibold text-muted-foreground mb-1">Disponible</p>
+            <p className="text-2xl sm:text-[28px] font-extrabold font-display text-foreground tracking-tight">
               {formatCurrency(Math.max(0, totalDisponible))}
             </p>
           </div>
         </div>
 
         {/* 4. Porcentaje Utilizado */}
-        <div className="bg-card rounded-3xl p-5 border border-border/70 shadow-xs flex flex-col justify-between">
-          <div className="size-10 rounded-xl bg-[#e6f7f5] text-[#0d9488] flex items-center justify-center mb-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="bg-card rounded-3xl p-6 border border-border/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="size-11 rounded-full bg-[#fef3c7] text-[#b45309] flex items-center justify-center mb-3">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
               <polyline points="17 6 23 6 23 12" />
             </svg>
           </div>
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-0.5">Porcentaje utilizado</p>
-            <p className="text-2xl sm:text-[26px] font-bold font-display text-foreground tracking-tight">
+            <p className="text-xs sm:text-sm font-semibold text-muted-foreground mb-1">Porcentaje utilizado</p>
+            <p className="text-2xl sm:text-[28px] font-extrabold font-display text-foreground tracking-tight">
               {porcentajeGlobal}%
             </p>
           </div>
@@ -474,12 +474,12 @@ export default function LimitesList() {
 
       {/* ── Cuadrícula de Tarjetas de Presupuesto ─────── */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-3">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="bg-card rounded-3xl p-6 border border-border/70 shadow-xs flex flex-col gap-4">
+            <div key={n} className="bg-card rounded-3xl p-7 border border-border/80 shadow-xs flex flex-col gap-4">
               <div className="h-6 rounded-lg w-1/2 bg-muted/60 animate-pulse" />
               <div className="h-4 rounded-full w-1/3 bg-muted/40 animate-pulse" />
-              <div className="grid grid-cols-2 gap-2.5 mt-3">
+              <div className="grid grid-cols-2 gap-3 mt-3">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="h-16 rounded-2xl bg-muted/30 animate-pulse" />
                 ))}
@@ -489,23 +489,23 @@ export default function LimitesList() {
           ))}
         </div>
       ) : limites.length === 0 ? (
-        <div className="finance-card flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground mt-2">
+        <div className="finance-card flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground mt-3">
           <span className="text-5xl">💳</span>
-          <p className="text-base font-bold font-display text-foreground">
+          <p className="text-lg font-bold font-display text-foreground">
             No hay presupuestos configurados para {currentMonthFormatted}
           </p>
-          <p className="text-xs text-muted-foreground max-w-sm text-center">
+          <p className="text-sm text-muted-foreground max-w-sm text-center">
             Crea tu primer límite de gasto mensual para mantener tus finanzas bajo control.
           </p>
           <button
             onClick={openCreateModal}
-            className="mt-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-[#093539] text-white hover:bg-[#07272a] transition-all"
+            className="mt-3 px-6 py-3 rounded-2xl text-sm font-bold bg-[#093539] text-white hover:bg-[#07272a] transition-all cursor-pointer"
           >
             + Crear límite
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-3">
           {limites.map((limite) => {
             const barWidth = Math.min(100, Math.max(0, limite.porcentaje));
             const barColor = getProgressBarColor(limite.estado);
@@ -513,29 +513,29 @@ export default function LimitesList() {
             return (
               <div
                 key={limite.id}
-                className="bg-card rounded-3xl p-6 border border-border/70 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow duration-200"
+                className="bg-card rounded-3xl p-7 sm:p-8 border border-border/80 shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow duration-200"
               >
                 {/* Cabecera de la tarjeta */}
                 <div>
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-lg font-bold font-display text-foreground leading-snug">
+                      <h3 className="text-2xl font-extrabold font-display text-foreground leading-tight tracking-tight">
                         {limite.categoria_nombre || 'Categoría'}
                       </h3>
-                      <div className="mt-1">
+                      <div className="mt-1.5">
                         <EstadoBadge estado={limite.estado} />
                       </div>
                     </div>
 
                     {/* Acciones */}
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       <button
                         id={`btn-editar-limite-${limite.id}`}
                         title="Editar"
                         onClick={() => startEdit(limite)}
-                        className="size-7 flex items-center justify-center rounded-lg text-muted-foreground/70 hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer"
+                        className="size-8 flex items-center justify-center rounded-xl text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
                       >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
@@ -544,9 +544,9 @@ export default function LimitesList() {
                         id={`btn-eliminar-limite-${limite.id}`}
                         title="Eliminar"
                         onClick={() => confirmDelete(limite)}
-                        className="size-7 flex items-center justify-center rounded-lg text-rose-500/80 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        className="size-8 flex items-center justify-center rounded-xl text-rose-500/80 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
                       >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="3 6 5 6 21 6" />
                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                         </svg>
@@ -555,35 +555,35 @@ export default function LimitesList() {
                   </div>
 
                   {/* Cuadrícula 2x2 de métricas */}
-                  <div className="grid grid-cols-2 gap-2.5 mt-5 mb-4">
+                  <div className="grid grid-cols-2 gap-3 mt-6 mb-4">
                     {/* Límite mensual */}
-                    <div className="rounded-2xl bg-[#f8fafc] dark:bg-muted/30 p-3.5 flex flex-col justify-center">
-                      <span className="text-xs font-medium text-muted-foreground">Límite mensual</span>
-                      <span className="text-base font-bold font-display text-foreground mt-0.5">
+                    <div className="rounded-2xl bg-[#f8fafc] dark:bg-muted/30 p-4 flex flex-col justify-center">
+                      <span className="text-xs sm:text-sm font-semibold text-muted-foreground">Límite mensual</span>
+                      <span className="text-lg sm:text-xl font-extrabold font-display text-foreground mt-1">
                         {formatCurrency(limite.monto)}
                       </span>
                     </div>
 
                     {/* Gastado */}
-                    <div className="rounded-2xl bg-[#f8fafc] dark:bg-muted/30 p-3.5 flex flex-col justify-center">
-                      <span className="text-xs font-medium text-muted-foreground">Gastado</span>
-                      <span className="text-base font-bold font-display text-foreground mt-0.5">
+                    <div className="rounded-2xl bg-[#f8fafc] dark:bg-muted/30 p-4 flex flex-col justify-center">
+                      <span className="text-xs sm:text-sm font-semibold text-muted-foreground">Gastado</span>
+                      <span className="text-lg sm:text-xl font-extrabold font-display text-foreground mt-1">
                         {formatCurrency(limite.gasto_acumulado)}
                       </span>
                     </div>
 
                     {/* Disponible */}
-                    <div className="rounded-2xl bg-[#f8fafc] dark:bg-muted/30 p-3.5 flex flex-col justify-center">
-                      <span className="text-xs font-medium text-muted-foreground">Disponible</span>
-                      <span className="text-base font-bold font-display text-foreground mt-0.5">
+                    <div className="rounded-2xl bg-[#f8fafc] dark:bg-muted/30 p-4 flex flex-col justify-center">
+                      <span className="text-xs sm:text-sm font-semibold text-muted-foreground">Disponible</span>
+                      <span className="text-lg sm:text-xl font-extrabold font-display text-foreground mt-1">
                         {formatCurrency(Math.max(0, limite.disponible))}
                       </span>
                     </div>
 
                     {/* Utilizado */}
-                    <div className="rounded-2xl bg-[#f8fafc] dark:bg-muted/30 p-3.5 flex flex-col justify-center">
-                      <span className="text-xs font-medium text-muted-foreground">Utilizado</span>
-                      <span className="text-base font-bold font-display text-foreground mt-0.5">
+                    <div className="rounded-2xl bg-[#f8fafc] dark:bg-muted/30 p-4 flex flex-col justify-center">
+                      <span className="text-xs sm:text-sm font-semibold text-muted-foreground">Utilizado</span>
+                      <span className="text-lg sm:text-xl font-extrabold font-display text-foreground mt-1">
                         {limite.porcentaje.toFixed(0)}%
                       </span>
                     </div>
@@ -591,7 +591,7 @@ export default function LimitesList() {
                 </div>
 
                 {/* Barra de progreso inferior */}
-                <div className="w-full h-2.5 rounded-full bg-[#f1f5f9] dark:bg-muted overflow-hidden mt-1">
+                <div className="w-full h-3 rounded-full bg-[#f1f5f9] dark:bg-muted overflow-hidden mt-2">
                   <div
                     className="h-full rounded-full transition-all duration-500"
                     style={{
@@ -610,43 +610,43 @@ export default function LimitesList() {
       {showCreateModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)' }}
         >
-          <div className="w-full max-w-md rounded-3xl bg-card border border-border p-6 shadow-xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between">
+          <div className="w-full max-w-lg rounded-3xl bg-card border border-border/60 p-7 sm:p-8 shadow-2xl flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold font-display text-foreground">
-                  Establecer Límite Mensual
+                <h3 className="text-xl sm:text-2xl font-extrabold font-display text-foreground tracking-tight">
+                  Establecer límite mensual
                 </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-sm text-muted-foreground mt-1">
                   Define el presupuesto máximo para una categoría en un mes.
                 </p>
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="size-8 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors cursor-pointer -mt-1 -mr-1"
               >
                 ✕
               </button>
             </div>
 
             {createError && (
-              <div className="p-3 rounded-2xl bg-danger-soft text-destructive text-xs border border-destructive/20 leading-relaxed">
+              <div className="p-3.5 rounded-2xl bg-danger-soft text-destructive text-sm border border-destructive/20 leading-relaxed font-medium">
                 ⚠️ {createError}
               </div>
             )}
 
-            <form onSubmit={handleCreateSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleCreateSubmit} className="flex flex-col gap-5">
               {/* Categoría */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-foreground">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-foreground">
                   Categoría de egreso <span className="text-expense">*</span>
                 </label>
                 <select
                   id="input-create-limite-cat"
                   value={createForm.id_cat}
                   onChange={(e) => setCreateForm({ ...createForm, id_cat: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-border bg-background text-foreground text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all cursor-pointer"
+                  className="w-full px-4 py-3 rounded-2xl border border-border bg-background text-foreground text-base font-medium outline-none focus:border-ring transition-all cursor-pointer"
                   required
                 >
                   <option value={0} disabled>Selecciona una categoría...</option>
@@ -659,8 +659,8 @@ export default function LimitesList() {
               </div>
 
               {/* Mes */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-foreground">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-foreground">
                   Mes del presupuesto <span className="text-expense">*</span>
                 </label>
                 <input
@@ -668,18 +668,18 @@ export default function LimitesList() {
                   type="month"
                   value={createForm.mes}
                   onChange={(e) => setCreateForm({ ...createForm, mes: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-border bg-background text-foreground text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl border border-border bg-background text-foreground text-base font-medium outline-none focus:border-ring transition-all"
                   required
                 />
               </div>
 
               {/* Monto */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-foreground">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-foreground">
                   Monto límite (MXN) <span className="text-expense">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-muted-foreground text-sm">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-muted-foreground text-base">$</span>
                   <input
                     ref={createMontoInputRef}
                     id="input-create-limite-monto"
@@ -689,18 +689,18 @@ export default function LimitesList() {
                     placeholder="3000.00"
                     value={createForm.monto || ''}
                     onChange={(e) => setCreateForm({ ...createForm, monto: e.target.value as any })}
-                    className="w-full pl-8 pr-4 py-2.5 rounded-2xl border border-border bg-background text-foreground text-sm font-semibold outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all"
+                    className="w-full pl-9 pr-4 py-3 rounded-2xl border border-border bg-background text-foreground text-base font-bold outline-none focus:border-ring transition-all"
                     required
                   />
                 </div>
               </div>
 
               {/* Botones */}
-              <div className="flex gap-2.5 pt-2">
+              <div className="flex justify-end items-center gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 py-2.5 rounded-2xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
+                  className="px-6 py-3 rounded-2xl border border-border text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -708,7 +708,7 @@ export default function LimitesList() {
                   type="submit"
                   id="btn-submit-create-limite"
                   disabled={creando}
-                  className="flex-1 py-2.5 rounded-2xl bg-[#093539] text-white text-sm font-bold hover:bg-[#07272a] active:scale-95 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="px-6 py-3 rounded-2xl bg-[#093539] text-white text-sm font-bold hover:bg-[#07272a] active:scale-95 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {creando ? 'Guardando...' : 'Crear límite'}
                 </button>
@@ -722,43 +722,43 @@ export default function LimitesList() {
       {showEditModal && editingLimite && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)' }}
         >
-          <div className="w-full max-w-md rounded-3xl bg-card border border-border p-6 shadow-xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between">
+          <div className="w-full max-w-lg rounded-3xl bg-card border border-border/60 p-7 sm:p-8 shadow-2xl flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold font-display text-foreground">
-                  Editar Límite Mensual
+                <h3 className="text-xl sm:text-2xl font-extrabold font-display text-foreground tracking-tight">
+                  Editar límite mensual
                 </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-sm text-muted-foreground mt-1">
                   Modifica el límite asignado para la categoría seleccionada.
                 </p>
               </div>
               <button
                 onClick={closeEditModal}
-                className="size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
+                className="size-8 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors cursor-pointer -mt-1 -mr-1"
               >
                 ✕
               </button>
             </div>
 
             {editError && (
-              <div className="p-3 rounded-2xl bg-danger-soft text-destructive text-xs border border-destructive/20 leading-relaxed">
+              <div className="p-3.5 rounded-2xl bg-danger-soft text-destructive text-sm border border-destructive/20 leading-relaxed font-medium">
                 ⚠️ {editError}
               </div>
             )}
 
-            <form onSubmit={handleEditSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleEditSubmit} className="flex flex-col gap-5">
               {/* Categoría */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-foreground">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-foreground">
                   Categoría de egreso <span className="text-expense">*</span>
                 </label>
                 <select
                   id="input-edit-limite-cat"
                   value={editForm.id_cat}
                   onChange={(e) => setEditForm({ ...editForm, id_cat: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-border bg-background text-foreground text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all cursor-pointer"
+                  className="w-full px-4 py-3 rounded-2xl border border-border bg-background text-foreground text-base font-medium outline-none focus:border-ring transition-all cursor-pointer"
                   required
                 >
                   {categorias.map((cat) => (
@@ -770,8 +770,8 @@ export default function LimitesList() {
               </div>
 
               {/* Mes */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-foreground">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-foreground">
                   Mes del presupuesto <span className="text-expense">*</span>
                 </label>
                 <input
@@ -779,18 +779,18 @@ export default function LimitesList() {
                   type="month"
                   value={editForm.mes}
                   onChange={(e) => setEditForm({ ...editForm, mes: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-2xl border border-border bg-background text-foreground text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all"
+                  className="w-full px-4 py-3 rounded-2xl border border-border bg-background text-foreground text-base font-medium outline-none focus:border-ring transition-all"
                   required
                 />
               </div>
 
               {/* Monto */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-foreground">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-foreground">
                   Monto límite (MXN) <span className="text-expense">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-muted-foreground text-sm">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-muted-foreground text-base">$</span>
                   <input
                     ref={editMontoInputRef}
                     id="input-edit-limite-monto"
@@ -800,18 +800,18 @@ export default function LimitesList() {
                     placeholder="3000.00"
                     value={editForm.monto || ''}
                     onChange={(e) => setEditForm({ ...editForm, monto: e.target.value as any })}
-                    className="w-full pl-8 pr-4 py-2.5 rounded-2xl border border-border bg-background text-foreground text-sm font-semibold outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-all"
+                    className="w-full pl-9 pr-4 py-3 rounded-2xl border border-border bg-background text-foreground text-base font-bold outline-none focus:border-ring transition-all"
                     required
                   />
                 </div>
               </div>
 
               {/* Botones */}
-              <div className="flex gap-2.5 pt-2">
+              <div className="flex justify-end items-center gap-3 pt-2">
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="flex-1 py-2.5 rounded-2xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
+                  className="px-6 py-3 rounded-2xl border border-border text-sm font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -819,7 +819,7 @@ export default function LimitesList() {
                   type="submit"
                   id="btn-submit-edit-limite"
                   disabled={guardando}
-                  className="flex-1 py-2.5 rounded-2xl bg-[#093539] text-white text-sm font-bold hover:bg-[#07272a] active:scale-95 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+                  className="px-6 py-3 rounded-2xl bg-[#093539] text-white text-sm font-bold hover:bg-[#07272a] active:scale-95 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
                 >
                   {guardando ? 'Guardando...' : 'Guardar cambios'}
                 </button>
@@ -833,33 +833,33 @@ export default function LimitesList() {
       {deletingLimite && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)' }}
         >
-          <div className="w-full max-w-sm rounded-3xl bg-card border border-border p-6 shadow-xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="size-12 rounded-full bg-danger-soft flex items-center justify-center text-destructive text-xl mx-auto">
+          <div className="w-full max-w-md rounded-3xl bg-card border border-destructive/20 p-7 sm:p-8 shadow-2xl flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="size-14 rounded-2xl bg-danger-soft flex items-center justify-center text-destructive text-3xl mx-auto">
               ⚠️
             </div>
             <div className="text-center">
-              <h3 className="text-base font-bold font-display text-foreground">
+              <h3 className="text-xl font-extrabold font-display text-foreground">
                 ¿Eliminar límite mensual?
               </h3>
-              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+              <p className="text-sm text-muted-foreground mt-2 leading-relaxed font-medium">
                 Estás a punto de eliminar el presupuesto de{' '}
                 <strong className="text-foreground">${Number(deletingLimite.monto).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</strong> para la categoría{' '}
                 <strong className="text-foreground">{deletingLimite.categoria_nombre}</strong> correspondiente a{' '}
                 <strong className="text-foreground">{formatMonthDisplay(deletingLimite.mes)}</strong>.
               </p>
-              <div className="mt-3 p-2.5 rounded-2xl bg-muted/60 text-xs text-muted-foreground border border-border/50 text-left">
+              <div className="mt-3 p-3 rounded-2xl bg-muted/60 text-xs text-muted-foreground border border-border/50 text-left font-medium">
                 ℹ️ <strong>Importante:</strong> Tus gastos registrados en esta categoría permanecerán totalmente intactos.
               </div>
             </div>
 
-            <div className="flex gap-2.5 pt-1">
+            <div className="flex gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setDeletingLimite(null)}
                 disabled={eliminando}
-                className="flex-1 py-2.5 rounded-2xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer"
+                className="flex-1 py-3 rounded-2xl border border-border text-sm font-bold text-foreground hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer"
               >
                 Cancelar
               </button>
@@ -868,7 +868,7 @@ export default function LimitesList() {
                 id="btn-confirm-delete-limite"
                 onClick={handleExecuteDelete}
                 disabled={eliminando}
-                className="flex-1 py-2.5 rounded-2xl bg-destructive text-destructive-foreground text-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+                className="flex-1 py-3 rounded-2xl bg-destructive text-destructive-foreground text-sm font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
               >
                 {eliminando ? 'Eliminando...' : 'Sí, eliminar'}
               </button>

@@ -1,4 +1,7 @@
-// frontend/src/components/Sidebar.tsx
+import { useEffect, useState } from 'react';
+import type { MetaAhorro } from '../types/metas.types';
+import { getMetas } from '../api/metas.api';
+import logoImg from '../assets/logo.png';
 
 export type PageId =
   | 'dashboard'
@@ -21,16 +24,20 @@ interface NavItem {
 interface SidebarProps {
   activePage: PageId;
   onNavigate: (page: PageId) => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 /* ── Íconos SVG — reciben color explícito ────────── */
 function NavIcon({ iconId, color }: { iconId: IconId; color: string }) {
-  const props = { width: 17, height: 17, viewBox: '0 0 24 24', fill: 'none', stroke: color, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  const props = { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: color, strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
   switch (iconId) {
     case 'dashboard':
       return (
-        <svg {...props} width={18} height={18}>
+        <svg {...props}>
           <rect x="3" y="3" width="7" height="7" rx="1.5"/>
           <rect x="14" y="3" width="7" height="7" rx="1.5"/>
           <rect x="3" y="14" width="7" height="7" rx="1.5"/>
@@ -97,83 +104,225 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'movimientos-ahorro', label: 'Movimientos de ahorro',   iconId: 'inbox'      },
 ];
 
-export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
+export default function Sidebar({
+  activePage,
+  onNavigate,
+  collapsed = true,
+  onToggleCollapse,
+  mobileOpen = false,
+  onCloseMobile,
+}: SidebarProps) {
+  const [metas, setMetas] = useState<MetaAhorro[]>([]);
+
+  useEffect(() => {
+    getMetas()
+      .then((data) => setMetas(data))
+      .catch(() => {});
+  }, [activePage]);
+
+  // Meta activa principal
+  const activeMeta = metas.find((m) => m.estado !== 'completada') || metas[0];
+  const metaPct = activeMeta ? Math.min(100, Math.max(0, activeMeta.porcentaje)) : 0;
+
+  // Si mobileOpen está activo en móvil, forzamos vista expandida
+  const isExpandedMobile = mobileOpen;
+  const isCollapsed = collapsed && !isExpandedMobile;
+
+  function handleSelect(id: PageId) {
+    onNavigate(id);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  }
+
   return (
-    <aside
-      className="flex flex-col h-screen bg-background border-r border-border shrink-0"
-      style={{ width: '240px' }}
-    >
-      {/* ── Brand ───────────────────────────── */}
-      <div className="flex items-center gap-3 px-5 pt-6 pb-4">
-        <div
-          className="size-10 rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0"
-          style={{ background: 'var(--primary)' }}
-        >
-          F
-        </div>
-        <div className="min-w-0">
-          <p className="text-base font-bold font-display text-foreground leading-tight">Finanzas</p>
-          <p className="text-xs text-muted-foreground">Gestión personal</p>
-        </div>
-      </div>
-
-      {/* ── Nav ─────────────────────────────── */}
-      <nav className="flex flex-col gap-0.5 px-3 mt-3">
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-2 mb-2">
-          Navegación
-        </p>
-
-        {NAV_ITEMS.map((item) => {
-          const isActive = activePage === item.id;
-          return (
-            <button
-              key={item.id}
-              id={`nav-${item.id}`}
-              onClick={() => onNavigate(item.id)}
-              className={[
-                'group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-left transition-all duration-150',
-                isActive
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-foreground hover:bg-secondary hover:text-foreground',
-              ].join(' ')}
+    <>
+      <aside
+        className={[
+          'flex flex-col h-screen bg-background border-r border-border shrink-0 transition-all duration-300 ease-in-out select-none',
+          // En móvil expandido: drawer overlay
+          isExpandedMobile
+            ? 'fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] shadow-2xl bg-background'
+            : isCollapsed
+            ? 'w-14 sm:w-16 md:w-20 relative z-30'
+            : 'w-60 relative z-30',
+        ].join(' ')}
+      >
+        {/* ── Brand & Toggle / Close Header ─────────────────── */}
+        <div className={`flex items-center pt-5 pb-3 ${isCollapsed ? 'flex-col gap-2.5 px-2' : 'justify-between px-5'}`}>
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Contenedor del Logo (Puedes cambiar su tamaño aquí con size-11, size-12, size-14, etc.) */}
+            <div
+              className={`${isCollapsed ? 'size-11 sm:size-12' : 'size-12 sm:size-14'} rounded-full flex items-center justify-center shrink-0 shadow-sm cursor-pointer hover:scale-105 transition-transform overflow-hidden`}
+              onClick={() => handleSelect('dashboard')}
+              title="Finanzas personales"
             >
-              {/* Ícono en círculo — color explícito, sin herencia CSS rota */}
-              <span
+              <img
+                src={logoImg}
+                alt="Finanzas"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <p className="text-base font-bold font-display text-foreground leading-tight truncate">Finanzas</p>
+                <p className="text-xs text-muted-foreground truncate">Gestión personal</p>
+              </div>
+            )}
+          </div>
+
+          {/* Botón de Cerrar cuando el drawer móvil está expandido */}
+          {isExpandedMobile && onCloseMobile && (
+            <button
+              id="btn-close-sidebar-mobile"
+              onClick={onCloseMobile}
+              title="Cerrar menú"
+              className="md:hidden size-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          )}
+
+          {/* Botón de Colapsar / Expandir (Siempre visible en el rail) */}
+          {onToggleCollapse && !isExpandedMobile && (
+            <button
+              id="btn-toggle-sidebar"
+              onClick={onToggleCollapse}
+              title={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
+              className="size-8 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer shrink-0"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="3" />
+                <line x1="9" y1="3" x2="9" y2="21" />
+                {isCollapsed ? (
+                  <polyline points="13 9 16 12 13 15" />
+                ) : (
+                  <polyline points="16 9 13 12 16 15" />
+                )}
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* ── Nav Items ─────────────────────────────── */}
+        <nav className={`flex flex-col gap-1.5 mt-2 overflow-y-auto flex-1 ${isCollapsed ? 'px-1.5 sm:px-2 items-center' : 'px-3'}`}>
+          {!isCollapsed && (
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-2 mb-1">
+              Navegación
+            </p>
+          )}
+
+          {NAV_ITEMS.map((item) => {
+            const isActive = activePage === item.id;
+            return (
+              <button
+                key={item.id}
+                id={`nav-${item.id}`}
+                onClick={() => handleSelect(item.id)}
+                title={isCollapsed ? item.label : undefined}
                 className={[
-                  'size-8 rounded-full flex items-center justify-center shrink-0 transition-colors duration-150',
+                  'group transition-all duration-150 cursor-pointer relative',
+                  isCollapsed
+                    ? 'size-10 sm:size-11 rounded-2xl flex items-center justify-center'
+                    : 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-left',
                   isActive
-                    ? 'bg-white/15'
-                    : 'bg-background border border-border group-hover:border-aqua-bright group-hover:bg-aqua-soft',
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-foreground hover:bg-secondary hover:text-foreground',
                 ].join(' ')}
               >
-                <NavIcon
-                  iconId={item.iconId}
-                  color={isActive ? '#ffffff' : 'var(--muted-foreground)'}
-                />
-              </span>
-              {item.label}
-            </button>
-          );
-        })}
-      </nav>
+                {/* Ícono */}
+                <span
+                  className={[
+                    'flex items-center justify-center shrink-0 transition-colors duration-150',
+                    isCollapsed
+                      ? 'size-8 sm:size-9 rounded-xl'
+                      : 'size-8 rounded-full',
+                    isActive
+                      ? (isCollapsed ? 'text-primary-foreground' : 'bg-white/15')
+                      : 'bg-background border border-border group-hover:border-aqua-bright group-hover:bg-aqua-soft',
+                  ].join(' ')}
+                >
+                  <NavIcon
+                    iconId={item.iconId}
+                    color={isActive ? '#ffffff' : 'var(--muted-foreground)'}
+                  />
+                </span>
 
-      {/* ── Spacer ──────────────────────────── */}
-      <div className="flex-1" />
+                {/* Texto expandido */}
+                {!isCollapsed && (
+                  <span className="truncate">{item.label}</span>
+                )}
 
-      {/* ── Meta del mes ────────────────────── */}
-      <div className="mx-3 mb-5 rounded-2xl p-4" style={{ background: 'var(--aqua-soft)' }}>
-        <p className="text-sm font-bold text-foreground">Meta del mes</p>
-        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-          Ahorra 20% de tus ingresos para tu fondo.
-        </p>
-        {/* Barra de progreso */}
-        <div className="mt-3 h-2 rounded-full bg-white/40 overflow-hidden">
+                {/* Floating Tooltip en modo colapsado */}
+                {isCollapsed && (
+                  <span className="hidden md:group-hover:block absolute left-full ml-3 px-3 py-1.5 bg-card text-foreground text-xs font-bold rounded-xl shadow-lg border border-border whitespace-nowrap z-50 pointer-events-none animate-in fade-in duration-150">
+                    {item.label}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* ── Widget Meta del mes (Expandido vs. Colapsado) ── */}
+        {!isCollapsed ? (
           <div
-            className="h-full rounded-full transition-all"
-            style={{ width: '42%', background: 'var(--income)' }}
-          />
-        </div>
-      </div>
-    </aside>
+            id="widget-meta-del-mes"
+            onClick={() => handleSelect('metas')}
+            title="Clic para gestionar tus metas de ahorro"
+            className="mx-3 mb-5 rounded-2xl p-4 cursor-pointer hover:shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] group select-none border border-emerald-500/10"
+            style={{ background: 'var(--aqua-soft)' }}
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-foreground truncate">
+                {activeMeta ? activeMeta.nombre : 'Meta del mes'}
+              </p>
+              <span className="text-[11px] font-extrabold text-[#065f46] font-display ml-1">
+                {metaPct.toFixed(0)}%
+              </span>
+            </div>
+
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed truncate">
+              {activeMeta
+                ? `Ahorrado $${Number(activeMeta.saldo).toLocaleString('es-MX')} de $${Number(activeMeta.monto_meta).toLocaleString('es-MX')}`
+                : 'Ahorra 20% de tus ingresos para tu fondo.'}
+            </p>
+
+            {/* Barra de progreso */}
+            <div className="mt-3 h-2 rounded-full bg-white/60 dark:bg-muted/60 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${metaPct}%`,
+                  background: '#064e3b',
+                }}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="py-4 flex justify-center">
+            <button
+              onClick={() => handleSelect('metas')}
+              title={`Meta de ahorro: ${activeMeta ? activeMeta.nombre : 'Sin metas'} (${metaPct.toFixed(0)}%)`}
+              className="size-10 sm:size-11 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-all shadow-xs group relative border border-emerald-500/20"
+              style={{ background: 'var(--aqua-soft)' }}
+            >
+              <span className="text-sm sm:text-base leading-none">🎯</span>
+              <span className="text-[9px] font-extrabold text-[#065f46] font-display leading-tight mt-0.5">
+                {metaPct.toFixed(0)}%
+              </span>
+
+              {/* Tooltip flotante */}
+              <span className="hidden md:group-hover:block absolute left-full ml-3 px-3 py-1.5 bg-card text-foreground text-xs font-bold rounded-xl shadow-lg border border-border whitespace-nowrap z-50 pointer-events-none">
+                {activeMeta ? `${activeMeta.nombre}: ${metaPct.toFixed(0)}%` : 'Metas de ahorro'}
+              </span>
+            </button>
+          </div>
+        )}
+      </aside>
+    </>
   );
 }
